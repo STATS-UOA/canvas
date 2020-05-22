@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set +e
+
+PNAME=canvas
+SWD="`pwd`"
+if [ -z "$TMPDIR" ]; then TMPDIR=/tmp; fi
+BLDTOP="$TMPDIR/$PNAME-$USER-build"
+BLD="$BLDTOP/$PNAME"
+rm -rf "$BLD"
+mkdir -p "$BLD"
+cp -pr "$SWD/"* "$BLD"/
+( cd "$BLD" && Rscript -e 'roxygen2::roxygenise()' && cd .. && R CMD build $PNAME )
+cp -p "$BLDTOP/$PNAME"_*.tar.gz ../
+rm -rf "$BLDTOP"
