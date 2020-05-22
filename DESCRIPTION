@@ -1,0 +1,11 @@
+Package: canvas
+Version: 0.1-0
+Title: Interface to Canvas LMS API
+Author: Simon Urbanek <Simon.Urbanek@r-project.org>
+Maintainer: Simon Urbanek <Simon.Urbanek@r-project.org>
+Depends: httr, jsonlite
+Description: Tools to access Canvas Learning Management Platform, create, query and update content.
+License: GPL-2 | GPL-3 | file LICENSE
+URL: http://www.rforge.net/rcanvas
+RoxygenNote: 7.1.0
+Encoding: UTF-8
