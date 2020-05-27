@@ -34,10 +34,10 @@ file.upload <- function(file, name=basename(file), folder, mime.type="text/plain
     if (status_code(r) != 200)
         stop(errorCondition("Inital POST to request upload failed", res=r, class="httrRequestError"))
     u <- fromJSON(rawToChar(r$content))
-    r2 <- POST(u$upload_url, body=c(u$upload_params, list(file=cont)), encode="multipart")
-    if (status_code(r) != 201)
+    r2 <- POST(u$upload_url, body=c(u$upload_params, list(file=readBin(file, raw(), sz))), encode="multipart")
+    if (status_code(r2) != 201)
         stop(errorCondition("Upload of the file failed", res=r, class="httrRequestError"))
-    tryCatch(fromJSON(rawToChar(r2content)), error=function(e) stop(errorCondition("Parsing of the request result failed, but file may have been created", res=r2, class="parseError")))
+    tryCatch(fromJSON(rawToChar(r2$content)), error=function(e) stop(errorCondition("Parsing of the request result failed, but file may have been created", res=r2, class="parseError")))
 }
 
 #' @description \code{file.delete} removes a file
