@@ -9,6 +9,7 @@ pages <- function(course, max=100)
     .chk(.hc(,paste0(file.path("courses", course, "pages"), "?per_page=", max)))
 
 .page.args <- function(content, title, editing_roles, notify, published, front) {
+    l <- list()
     if (!missing(content)) {
         if (is.raw(content))
             content <- rawToChar(content)
