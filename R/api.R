@@ -39,12 +39,49 @@
     .pool$last <- httr:::request_perform(req, hu$handle$handle)
 }
 
-.chk <- function(r, desc="Canvas request failed", valid.code=200L) {
-    if (status_code(r) != 200)
+.chk <- function(r, desc="Canvas request failed", valid.code=200L, flatten=TRUE) {
+    if (!(status_code(r) %in% valid.code))
         stop(errorCondition(desc, res=r, class="httrRequestError"))
-    tryCatch(fromJSON(rawToChar(r$content)),
+    tryCatch(fromJSON(rawToChar(r$content), flatten=flatten),
              error=function(e) stop(errorCondition("Parsing of the request result failed",
                                                    res=r, class="parseError")))
+}
+
+.api <- function(path, ..., max=100L, autopage=TRUE, flatten=TRUE, method="GET") {
+    if (is.na(autopage)) return(.chk(.hc(method, path, ...), flatten=flatten))
+    pre.q <- gsub("\\?.*", "", path)
+    q <- if (pre.q == path) "" else gsub("^[^?]+\\?", "", path)
+    pg.path <- paste0(path, if (nchar(q)) "&" else "?", "per_page=", max)
+    r0 <- .hc(method, pg.path, ...)
+    if (!autopage || status_code(r0) != 200L) return(.chk(r0, flatten=flatten))
+
+    ## FIXME: This is not the official way, we just want to avoid
+    ## the brain-dead API which doesn't even provide the "next" link
+    ## reliably, but they do always provide "last" so we just
+    ## iterate from 1 to last by detecting the last page number
+    ## in the "last" link
+    links <- strsplit(r0$headers$link, ",", TRUE)[[1]]
+    ll <- links[grep("rel=.last.", links)]
+    lp <- ""
+    if (length(ll)) {
+        lp <- gsub(".*[^_]page=(\\d+).*", "\\1", ll)
+        if (lp != ll) {
+            lp <- as.integer(lp)
+        }
+    }
+    ## carry on only if we found a valid last page number that is > 1
+    if (is.integer(lp) && !is.na(lp) && lp > 1L) {
+        l <- vector("list", lp)
+        l[[1]] <- .chk(r0, flatten=flatten)
+        for (page in 2:lp)
+            l[[page]] <- .chk(.hc(method, paste0(pg.path, "&page=", page), ...), flatten=flatten)
+        ## check if there are nested data frames since that won't work
+        if (!flatten &&
+            any(sapply(l, function(df) any(sapply(df, is.data.frame)))))
+                stop(errorCondition("At least one of returned parts contains nested data frames, cannot combine paginated result in that case unless flatten=TRUE is used.", parts=l, class="pagedCombineError"))
+
+        do.call(rbind, l)
+    } else .chk(r0, flatten=flatten)
 }
 
 #' @title Manage courses
