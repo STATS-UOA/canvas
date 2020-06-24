@@ -6,4 +6,4 @@
 #' @param ... additional argument for \code{\link{.api}}
 #' @export
 enrollments <- function(course, ...)
-    api(file.path("courses", course, "enrollments"), ...)
+    .api(file.path("courses", course, "enrollments"), ...)
