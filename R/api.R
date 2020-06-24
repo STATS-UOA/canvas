@@ -1,26 +1,5 @@
 #' @import httr jsonlite
 
-.pool <- new.env(parent=emptyenv())
-
-.handle <- function(new=FALSE, token=Sys.getenv("CANVAS_API_TOKEN")) {
-    if (new || is.null(.pool$handle)) {
-        h <- new_handle()
-        curl::handle_setheaders(h, Authorization=paste("Bearer", token))
-        if (!new)
-            .pool$handle <- h
-        h
-    } else .pool$handle
-}
-
-.canvas <- function(method="GET", path, ...,
-                    headers=NULL,
-                    token=Sys.getenv("CANVAS_API_TOKEN"),
-                    api.url=Sys.getenv("CANVAS_API_DOMAIN")) {
-    h <- .handle(token=token)
-    if (headers) handle_
-    handle_setopt(handle, .list = list(...))
-}
-
 #' @rdname API
 #' @description \code{.hc} is the main function performing Canvas LMS REST requests. It returns the \code{httr::response()} object. The result is also stored in an internal variable which can be retrieved with \code{last.result()}.
 .hc <- function(method="GET", path, ...,
@@ -113,7 +92,7 @@ modules <- function(course, ...)
 #'
 #' @rdname modules
 #' @export
-module.items <- function(course, module, max=100)
+module.items <- function(course, module, ...)
     .api(file.path("courses", course, "modules", module, "items"), ...)
 
 #' @title API-related functions
