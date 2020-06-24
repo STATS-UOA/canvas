@@ -3,10 +3,10 @@
 #'
 #' @description \code{pages} lists all pages in a course.
 #' @param course integer, \code{id} of the course
-#' @param max integer, maximum number of entries. Note that pagination is currently not supported and Canvas limits the value of \code{max}, empirically at 100.
+#' @param ... additional arguments for \code{\link{.api}}
 #' @export
-pages <- function(course, max=100)
-    .chk(.hc(,paste0(file.path("courses", course, "pages"), "?per_page=", max)))
+pages <- function(course, ...)
+    .api(file.path("courses", course, "pages"), ...)
 
 .page.args <- function(content, title, editing_roles, notify, published, front) {
     l <- list()

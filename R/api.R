@@ -47,6 +47,14 @@
                                                    res=r, class="parseError")))
 }
 
+#' @rdname API
+#' @export
+#' @param path string, API path (e.g. \code{"/courses"})
+#' @param ... low-level arguments passed to \code{.hc}
+#' @param autopage logical, if \code{TRUE} the multi-page results are automatically collected and merged into one. If \code{FALSE} then only a signle request is done but \code{max} is respected. If \code{NA} then \code{path} is sent-as is without any attempt to manage pagination.
+#' @param max integer, maximum number of items to retrieve per request. Ignored if \code{autopage=NA}, otherwise maps to the \code{pre_page=} query string.
+#' @param flatten logical, if \code{TRUE} then nested tables are merged into one final one. Note that auto-pagination requires \code{flatten=TRUE} if there are nested tables as it is not possible to merge nested tables from multiple pages.
+#' @param method string, HTTP request method
 .api <- function(path, ..., max=100L, autopage=TRUE, flatten=TRUE, method="GET") {
     if (is.na(autopage)) return(.chk(.hc(method, path, ...), flatten=flatten))
     pre.q <- gsub("\\?.*", "", path)
@@ -89,24 +97,24 @@
 #' @description List all accessible courses
 #' @export
 courses <- function()
-    .chk(.hc(, "courses"))
+    .api("courses")
 
 #' @title Manage course modules
 #'
 #' @description \code{modules} lists all modules in a course
 #'
 #' @param course, integer, course-id
-#' @param max integer, maximum number of entries. Note that pagination is currently not supported and Canvas limits the value of \code{max}, empirically at 100.
+#' @param ... any futher options to \code{\link{.api}}
 #' @export
-modules <- function(course, max=100)
-    .chk(.hc(,paste0(file.path("courses", course, "modules"), "?per_page=", max)))
+modules <- function(course, ...)
+    .api(file.path("courses", course, "modules"), ...)
 
 #' @description List all items contained in a module
 #'
 #' @rdname modules
 #' @export
 module.items <- function(course, module, max=100)
-    .chk(.hc(,paste0(file.path("courses", course, "modules", module, "items"), "?per_page=", max)))
+    .api(file.path("courses", course, "modules", module, "items"), ...)
 
 #' @title API-related functions
 #' @name API
@@ -115,3 +123,4 @@ module.items <- function(course, module, max=100)
 #' 
 #' @export
 last.request <- function() .pool$last
+

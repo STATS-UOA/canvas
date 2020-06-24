@@ -4,13 +4,13 @@
 #'
 #' @param folder \code{id} of the folder
 #' @param course \code{id} of the course
-#' @param max integer, maximum number of entries. Note that pagination is currently not supported and Canvas limits the value of \code{max}, empirically at 100.
+#' @param ... additional argument for \code{\link{.api}}
 #' @export
-files <- function(folder, course, max=100) {
+files <- function(folder, course, ...) {
     if (!missing(folder))
-        return(.chk(.hc(,paste0(file.path("folders", folder, "files"), "?per_page=", max))))
+        return(.api(file.path("folders", folder, "files"), ...))
     if (!missing(course))
-        return(.chk(.hc(,paste0(file.path("courses", course, "files"), "?per_page=", max))))
+        return(.api(file.path("courses", course, "files"), ...))
     stop("One of folders, courses must be set")
 }
 
@@ -52,8 +52,8 @@ file.delete <- function(id)
 #'
 #' @rdname files
 #' @export
-folders <- function(course, max=100) {
+folders <- function(course, ...) {
     if (!missing(course))
-        return(.chk(.hc(,paste0(file.path("courses", course, "folders"), "?per_page=", max))))
+        return(.api(file.path("courses", course, "folders"), ...))
     stop("One of folders, courses must be set")
 }
