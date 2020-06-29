@@ -1,5 +1,7 @@
 #' @import httr jsonlite
 
+.pool <- new.env(parent=emptyenv())
+
 #' @rdname API
 #' @description \code{.hc} is the main function performing Canvas LMS REST requests. It returns the \code{httr::response()} object. The result is also stored in an internal variable which can be retrieved with \code{last.result()}.
 .hc <- function(method="GET", path, ...,
